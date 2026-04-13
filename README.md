@@ -1,291 +1,514 @@
-<p align="center">
-	<img alt="logo" src="https://sa-token.cc/logo.png" width="150" height="150">
-</p>
-<h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">Sa-Token v1.45.0</h1>
-<h4 align="center">✨ 开源、免费、一站式 java 权限认证框架，让鉴权变得简单、优雅！ </h4>
-<p align="center">
-	<a href="https://gitee.com/dromara/sa-token/stargazers"><img src="https://gitee.com/dromara/sa-token/badge/star.svg?theme=gvp"></a>
-	<a href="https://gitee.com/dromara/sa-token/members"><img src="https://gitee.com/dromara/sa-token/badge/fork.svg?theme=gvp"></a>
-	<a href="https://atomgit.com/dromara/sa-token/stargazers"><img src="https://atomgit.com/dromara/Sa-Token/star/badge.svg"></a>
-	<a href="https://github.com/dromara/sa-token/stargazers"><img src="https://img.shields.io/github/stars/dromara/sa-token?style=flat-square&logo=GitHub"></a>
-	<a href="https://github.com/dromara/sa-token/network/members"><img src="https://img.shields.io/github/forks/dromara/sa-token?style=flat-square&logo=GitHub"></a>
-	<!-- <a href="https://github.com/dromara/sa-token/watchers"><img src="https://img.shields.io/github/watchers/dromara/sa-token?style=flat-square&logo=GitHub"></a> -->
-	<!-- <a href="https://github.com/dromara/sa-token/issues"><img src="https://img.shields.io/github/issues/dromara/sa-token.svg?style=flat-square&logo=GitHub"></a> -->
-	<a href="https://github.com/dromara/sa-token/blob/master/LICENSE"><img src="https://img.shields.io/github/license/dromara/sa-token.svg?style=flat-square"></a>
-</p>
-<!-- <p align="center">学习测试请拉取 master 分支，dev 是在开发分支 (在根目录执行 `git checkout master`)</p> -->
-<p align="center"><a href="https://sa-token.cc?way=readme" target="_blank">在线文档：https://sa-token.cc</a></p>
+# AeroPre_Auth_center
 
+> 基于 **Cloudflare Workers + D1 + KV** 的轻量级统一身份认证中心，零服务器、全球边缘部署。
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Hono](https://img.shields.io/badge/Hono-4.12-orange?logo=hono)](https://hono.dev/)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-f38020?logo=cloudflare)](https://workers.cloudflare.com/)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 
 ---
 
-### 📝 前言：
+## 功能特性
 
-回望 2020 年初，我为 Sa-Token 提交第一行代码之际，彼时市面上 Java 缺少的不仅是一个简洁好用的鉴权框架，更是一整套清晰、自洽的权限架构设计思想。
+| 模块 | 功能 |
+|------|------|
+| 🔐 登录认证 | 登录 / 注销 / 踢人下线 / 顶号下线 |
+| 🪙 Token 管理 | UUID / Random 多种风格，KV 快速校验 + D1 持久化双层存储 |
+| 📦 Session | 账号级 key-value 存储 |
+| 🛡️ 权限认证 | 权限列表增删查、权限校验 |
+| 👤 角色认证 | 角色列表增删查、角色校验 |
+| 🚫 账号封禁 | 分类封禁 / 阶梯封禁 / 解封 / 封禁查询 |
+| 🔗 SSO Server | 生成/校验 ticket、单点注销、Client 注册 |
+| 🔗 SSO Client | 跳转登录 / 回调校验 / 单点注销 |
+| ⏱️ 临时 Token | 短时一次性授权 token |
+| 🧩 中间件 | `requireLogin` / `requirePermission` / `requireRole` |
+| 🕒 定时清理 | Cron Trigger 自动清理过期 token / ticket |
 
-因此，这几年间我将大量时间倾注在 Sa-Token 的文档编写，几乎每一章节、每一句话、每一个字都经过反复修改、精细打磨，以求做到最清晰、干练、易懂的表述。用心阅读文档，你学习到的将不止是 Sa-Token 框架本身，更是绝大多数场景下权限设计的最佳实践。
+---
 
+## 技术栈
 
+| 层次 | 技术 |
+|------|------|
+| 运行时 | Cloudflare Workers |
+| Web 框架 | [Hono v4.12](https://hono.dev/) |
+| 持久化 | Cloudflare D1（SQLite） |
+| 缓存 | Cloudflare KV |
+| 语言 | TypeScript 5.x |
 
-### 🛠️ Sa-Token 介绍
+---
 
-Sa-Token 是一个轻量级 Java 权限认证框架，目前拥有五大核心模块：登录认证、权限认证、单点登录、OAuth2.0、微服务鉴权。
+## 快速开始
 
-![sa-token-jss](https://sa-token.cc/big-file/index/intro/sa-token-jss--tran.png)
+### 前置要求
 
-要在 SpringBoot 项目中使用 Sa-Token，你只需要在 pom.xml 中引入依赖：
+- Node.js 18+
+- [Cloudflare 账号](https://dash.cloudflare.com/sign-up)
+- Wrangler CLI（随 `devDependencies` 安装，无需全局安装）
 
-``` xml
-<!-- Sa-Token 权限认证, 在线文档：https://sa-token.cc -->
-<dependency>
-	<groupId>cn.dev33</groupId>
-	<artifactId>sa-token-spring-boot-starter</artifactId>
-	<version>1.45.0</version>
-</dependency>
+---
+
+### 第一步：克隆并安装依赖
+
+```bash
+git clone https://github.com/zxy7906052/sso.git
+cd sso
+npm install
 ```
 
-除了支持 SpringBoot2、Sa-Token 还为 SpringBoot3/4、Solon、JFinal 等常见 Web 框架提供集成包，做到真正的开箱即用。
+---
 
+### 第二步：登录 Cloudflare
 
-<details>
-<summary><b>简单示例展示：</b>（点击展开 / 折叠）</summary>
-
-Sa-Token 旨在以简单、优雅的方式完成系统的权限认证部分，以登录认证为例，你只需要：
-
-``` java
-// 会话登录，参数填登录人的账号id 
-StpUtil.login(10001);
+```bash
+npx wrangler login
 ```
 
-无需实现任何接口，无需创建任何配置文件，只需要这一句静态代码的调用，便可以完成会话登录认证。
+浏览器会自动打开授权页面，完成后返回终端继续操作。
 
-如果一个接口需要登录后才能访问，我们只需调用以下代码：
+---
 
-``` java
-// 校验当前客户端是否已经登录，如果未登录则抛出 `NotLoginException` 异常
-StpUtil.checkLogin();
+### 第三步：创建 D1 数据库
+
+```bash
+npx wrangler d1 create aeropre-auth-center-db
 ```
 
-在 Sa-Token 中，大多数功能都可以一行代码解决：
+命令成功后会输出类似：
 
-踢人下线：
-
-``` java
-// 将账号id为 10077 的会话踢下线 
-StpUtil.kickout(10077);
 ```
-
-权限认证：
-
-``` java
-// 注解鉴权：只有具备 `user:add` 权限的会话才可以进入方法
-@SaCheckPermission("user:add")
-public String insert(SysUser user) {
-    // ... 
-    return "用户增加";
+✅ Successfully created DB 'aeropre-auth-center-db'
+{
+  "uuid": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 }
 ```
 
-路由拦截鉴权：
+**将 `uuid` 值填入 `wrangler.toml`：**
 
-``` java
-// 根据路由划分模块，不同模块不同鉴权 
-registry.addInterceptor(new SaInterceptor(handler -> {
-	SaRouter.match("/user/**", r -> StpUtil.checkPermission("user"));
-	SaRouter.match("/admin/**", r -> StpUtil.checkPermission("admin"));
-	SaRouter.match("/goods/**", r -> StpUtil.checkPermission("goods"));
-	SaRouter.match("/orders/**", r -> StpUtil.checkPermission("orders"));
-	SaRouter.match("/notice/**", r -> StpUtil.checkPermission("notice"));
-	// 更多模块... 
-})).addPathPatterns("/**");
+```toml
+[[d1_databases]]
+binding = "DB"
+database_name = "aeropre-auth-center-db"
+database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"   # ← 填入此处
 ```
 
-**如果您曾经使用过 Shiro、SpringSecurity，在切换到 Sa-Token 后，您将体会到质的飞跃。**
+---
 
-<!-- 当你受够 Shiro、SpringSecurity 等框架的三拜九叩之后，你就会明白，相对于这些传统老牌框架，Sa-Token 的 API 设计是多么的简单、优雅！ -->
+### 第四步：创建 KV 命名空间
 
-</details>
+```bash
+npx wrangler kv namespace create TOKEN_KV
+```
 
+输出示例：
 
-<details>
-<summary> <b>核心模块一览：</b>（点击展开 / 折叠） </summary>
+```
+✅ Successfully created namespace 'aeropre-auth-center-TOKEN_KV'
+{ "id": "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy" }
+```
 
-- **登录认证** —— 单端登录、多端登录、同端互斥登录、七天内免登录。
-- **权限认证** —— 权限认证、角色认证、会话二级认证。
-- **踢人下线** —— 根据账号id踢人下线、根据Token值踢人下线。
-- **注解式鉴权** —— 优雅的将鉴权与业务代码分离。
-- **路由拦截式鉴权** —— 根据路由拦截鉴权，可适配 restful 模式。
-- **Session会话** —— 全端共享Session,单端独享Session,自定义Session,方便的存取值。
-- **持久层扩展** —— 可集成 Redis，重启数据不丢失。
-- **前后台分离** —— APP、小程序等不支持 Cookie 的终端也可以轻松鉴权。
-- **Token风格定制** —— 内置六种 Token 风格，还可：自定义 Token 生成策略。
-- **记住我模式** —— 适配 [记住我] 模式，重启浏览器免验证。
-- **二级认证** —— 在已登录的基础上再次认证，保证安全性。 
-- **模拟他人账号** —— 实时操作任意用户状态数据。
-- **临时身份切换** —— 将会话身份临时切换为其它账号。
-- **同端互斥登录** —— 像QQ一样手机电脑同时在线，但是两个手机上互斥登录。
-- **账号封禁** —— 登录封禁、按照业务分类封禁、按照处罚阶梯封禁。
-- **密码加密** —— 提供基础加密算法，可快速 MD5、SHA1、SHA256、AES 加密。
-- **会话查询** —— 提供方便灵活的会话查询接口。
-- **Http Basic认证** —— 一行代码接入 Http Basic、Digest 认证。
-- **全局侦听器** —— 在用户登陆、注销、被踢下线等关键性操作时进行一些AOP操作。
-- **全局过滤器** —— 方便的处理跨域，全局设置安全响应头等操作。
-- **多账号体系认证** —— 一个系统多套账号分开鉴权（比如商城的 User 表和 Admin 表）
-- **单点登录** —— 内置三种单点登录模式：同域、跨域、同Redis、跨Redis、前后端分离等架构都可以搞定。
-- **单点注销** —— 任意子系统内发起注销，即可全端下线。
-- **OAuth2.0认证** —— 轻松搭建 OAuth2.0 服务，支持openid模式 。
-- **分布式会话** —— 提供共享数据中心分布式会话方案。
-- **微服务网关鉴权** —— 适配Gateway、ShenYu、Zuul等常见网关的路由拦截认证。
-- **RPC调用鉴权** —— 网关转发鉴权，RPC调用鉴权，让服务调用不再裸奔
-- **临时Token认证** —— 解决短时间的 Token 授权问题。
-- **独立Redis** —— 将权限缓存与业务缓存分离。
-- **Quick快速登录认证** —— 为项目零代码注入一个登录页面。
-- **标签方言** —— 提供 Thymeleaf 标签方言集成包，提供 beetl 集成示例。
-- **jwt集成** —— 提供三种模式的 jwt 集成方案，提供 token 扩展参数能力。
-- **RPC调用状态传递** —— 提供 dubbo、grpc 等集成包，在RPC调用时登录状态不丢失。
-- **参数签名** —— 提供跨系统API调用签名校验模块，防参数篡改，防请求重放。
-- **自动续签** —— 提供两种Token过期策略，灵活搭配使用，还可自动续签。
-- **开箱即用** —— 提供SpringMVC、WebFlux、Solon 等常见框架集成包，开箱即用。
-- **最新技术栈** —— 适配最新技术栈：支持 SpringBoot 3.x，jdk 17。
+**将 `id` 填入 `wrangler.toml`：**
 
-</details>
+```toml
+[[kv_namespaces]]
+binding = "TOKEN_KV"
+id = "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy"   # ← 填入此处
+```
 
+---
 
+### 第五步：初始化数据库表结构
 
-### 🍃 SSO 单点登录
+**本地开发环境：**
 
-Sa-Token SSO 分为三种模式，可解决：`同域、跨域、共享Redis、跨Redis、前后端一体、前后端分离、纯 js、vue2、vue3、java 项目、非 java 项目` 等架构下的 SSO 认证需求：
+```bash
+npm run db:migrate
+```
 
-![sa-token-jss](https://sa-token.cc/big-file/doc/sso/sa-token-sso--white.png)
+**生产/远程 D1：**
 
+```bash
+npm run db:migrate:remote
+```
 
-| 系统架构						| 采用模式	| 简介						        |  文档链接	|
-| :--------						| :--------	|:----------------| :--------	|
-| 前端同域 + 后端同 Redis			| 模式一		| 共享Cookie同步会话			 | [文档](https://sa-token.cc/doc.html#/sso/sso-type1)、[示例](https://gitee.com/dromara/sa-token/blob/master/sa-token-demo/sa-token-demo-sso1-client)	|
-| 前端不同域 + 后端同 Redis		| 模式二		| URL重定向传播会话 			  | [文档](https://sa-token.cc/doc.html#/sso/sso-type2)、[示例](https://gitee.com/dromara/sa-token/blob/master/sa-token-demo/sa-token-demo-sso2-client)	|
-| 前端不同域 + 后端 不同Redis		| 模式三		| HTTP请求获取会话			   | [文档](https://sa-token.cc/doc.html#/sso/sso-type3)、[示例](https://gitee.com/dromara/sa-token/blob/master/sa-token-demo/sa-token-demo-sso3-client)	|
+---
 
+### 第六步：设置生产环境密钥
 
-1. 前端同域：就是指多个系统可以部署在同一个主域名之下，比如：`c1.domain.com`、`c2.domain.com`、`c3.domain.com`
-2. 后端同 Redis：就是指多个系统可以连接同一个 Redis，共享会话数据。
-3. 如果无法做到前端同域、后端同 Redis，可以走托底的模式三：Http请求校验 ticket 获取会话。
-4. 提供：NoSdk 模式示例 + sso-server 接口文档，非 Sa-Token 项目、非 java 项目也可以对接。
-5. 提供：多重安全校验：域名校验、ticket校验、参数签名校验，有效防 ticket 劫持，防请求重放等攻击。
-6. 提供：大量实战痛点教学：sso-server 前后端分离设计、sso-client 前后端分离设计、用户数据同步/迁移方案设计。
-7. 提供：直接可运行的 demo 示例，助你快速熟悉 SSO 大致登录流程。
-8. 提供：深度细节优化，参数防丢：笔者曾试验多个SSO框架，均有参数丢失情况，比如登录前是：`http://a.com?id=1&name=2`，登录成功后就变成了：`http://a.com?id=1`，Sa-Token-SSO 内有专门算法保证了参数不丢失，登录成功后精准原路返回。
+> ⚠️ 不要将密钥明文写入 `wrangler.toml`，请使用 Wrangler Secret：
 
+```bash
+npx wrangler secret put SSO_SECRET_KEY
+# 按提示输入一个高强度随机字符串（建议 64 位以上）
+```
 
+---
 
+### 第七步：本地开发
 
-### 🍂 OAuth2 授权认证
-Sa-Token OAuth2 模块分为四种授权模式，解决不同场景下的授权需求 
+```bash
+npm run dev
+```
 
-| 授权模式					| 简介						|
-| :--------					| :--------					|
-| 授权码式					| OAuth2 标准授权步骤，server 端下放 code，client 端获取 code 码兑换 access_token			|
-| 隐藏式					| 备用选择，server 端使用 URL 重定向方式直接将 access_token 下放到 client 端页面 			|
-| 密码式					| client 直接拿着用户的账号密码换取授权 access_token				|
-| 客户端凭证式				| server 端针对 client 级别的 client_token，代表应用自身的资源授权		|
+Worker 将在 `http://localhost:8787` 启动，支持热重载。
 
-详细参考文档：[https://sa-token.cc/doc.html#/oauth2/readme](https://sa-token.cc/doc.html#/oauth2/readme)
+---
 
+### 第八步：部署到 Cloudflare
 
-### 📖❓ 疑问解答
+```bash
+npm run deploy
+```
 
-**1、Sa-Token 功能全不全？** 
+部署成功后会输出 Worker 的公开访问地址，例如：
 
-七年磨一剑：五大核心模块(登录、鉴权、SSO、OAuth2、微服务) + 众多实用插件 (短 token、jwt 集成、API 参数签名、API Key 秘钥授权...) 我们提供的不只是权限认证，我们提供的是一站式解决方案。
+```
+https://aeropre-auth-center.your-subdomain.workers.dev
+```
 
+---
 
-**2、Sa-Token 好不好学？** 
+## 环境变量说明
 
-中文文档 + 中文代码注释 + 中文交流社区 + 大量实战案例博客 + 多个视频教程 + 大量优秀开源项目集成案例。
+所有变量在 `wrangler.toml` 的 `[vars]` 区域配置：
 
+| 变量名 | 说明 | 默认值 |
+|--------|------|--------|
+| `SA_TOKEN_NAME` | Token 在 Header / Cookie 中的 key 名 | `satoken` |
+| `SA_TOKEN_TIMEOUT` | Token 默认有效期（秒），`-1` = 永不过期 | `2592000`（30天）|
+| `SA_TOKEN_ACTIVE_TIMEOUT` | 活跃有效期（秒），`-1` = 不启用 | `1800`（30分钟）|
+| `SA_TOKEN_IS_CONCURRENT` | 是否允许同端并发登录 | `true` |
+| `SA_TOKEN_IS_SHARE` | 并发登录时是否复用同一 Token | `true` |
+| `SA_TOKEN_MAX_LOGIN_COUNT` | 最大同端登录数，`-1` = 不限制 | `12` |
+| `SSO_SERVER_URL` | SSO 服务端地址（充当 SSO Client 时填写） | 空 |
+| `SSO_SECRET_KEY` | SSO 签名密钥（**生产环境用 Secret**） | — |
+| `SSO_TICKET_TIMEOUT` | ticket 有效期（秒） | `300` |
 
-**3、Sa-Token 用的人多不多？** 
+---
 
-截止统计日 (2026-1-25) 起，Sa-Token 在：
+## API 文档
 
-- Gitee 关注量达到 48627 Star，位列平台所有推荐项目排行榜第一名。
-- GitHub 关注量达到 18523 Star，是主要竞争框架 Spring Security 的 1.97 倍，Apache Shiro 的 4.19 倍。
-- 25+ 微信粉丝群 (500人)，8+ QQ粉丝群 (1000人 or 2000人) ，在线文档访问量月PV 20万+。
+所有接口统一返回格式：
 
-这是众多开发者用脚投票的数据，相信这些数据比任何言语都能证明 Sa-Token 的热度。
+```json
+{ "code": 200, "msg": "ok", "data": { ... } }
+```
 
+---
 
-**4、Sa-Token 有哪些权威认证？** 
+### 认证接口 `/auth`
 
-曾获荣誉包括但不限于：Gitee GVP 最有价值开源项目、GitCode G-Star 优质开源项目、OSCHINA 2021 人气指数 TOP 30 开源项目、OSCHINA 2022 年度最火热中国开源项目社区之一、开放原子基金会2023快速成长开源项目、 Dromara 组织顶尖项目（之一）、可信开源社区共同体预备成员、所在开源社区 “Dromara” 荣获《2024中国互联网发展创新与投资大赛（开源）》二等奖。 Gitee High Star 计划项目(5000+star)。Gitee 2025年度开源项目 Web应用开发 Top 2。
+#### 登录
 
+```http
+POST /auth/login
+Content-Type: application/json
 
-**5、Sa-Token 收费吗？** 
+{
+  "loginId": "10001",
+  "device": "default",
+  "timeout": 3600,
+  "extra": { "username": "张三" }
+}
+```
 
-Sa-Token 采用 Apache-2.0 开源协议，承诺框架本身与在线文档永久免费开放。当然如果您有心赞助 Sa-Token，我们也不回避：[赞助链接](https://sa-token.cc/doc.html#/more/sa-token-donate)。
-我们将定期同步赞助者名单到在线文档展示。（您需要注意的一点是：该赞助仅为友情赞助，不提供任何商业交换）
+响应：
 
+```json
+{
+  "code": 200,
+  "msg": "ok",
+  "data": {
+    "loginId": "10001",
+    "tokenName": "satoken",
+    "tokenValue": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "isLogin": true,
+    "loginType": "login",
+    "tokenTimeout": 3600
+  }
+}
+```
 
-**6、Sa-Token 是封装的 SpringSecurity 吗？是套壳 ApacheShiro 吗？** 
+后续请求在 Header 中携带 Token：
 
-不是。Sa-Token 不是一个后台模板，也不是针对 xx 框架的二次封装套壳，而是从 0 开始的纯血自研框架，核心包零依赖，完全自主可控的架构内核 + 众多主流框架的集成适配。
-						
+```http
+satoken: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
 
+---
 
-### 🚀 优秀开源集成案例
+#### 注销
 
-- [[ Snowy ]](https://gitee.com/xiaonuobase/snowy)：国内首个国密前后分离快速开发平台，采用 Vue3 + Vite + SpringBoot + Mp + HuTool + SaToken。
-- [[ RuoYi-Vue-Plus ]](https://gitee.com/dromara/RuoYi-Vue-Plus)：重写RuoYi-Vue所有功能 集成 Sa-Token、Mybatis-Plus、Xxl-Job、knife4j、OSS 定期同步。
-- [[ Smart-Admin ]](https://gitee.com/lab1024/smart-admin)：SmartAdmin 国内首个以「高质量代码」为核心，「简洁、高效、安全」中后台快速开发平台。
-- [[ 橙单 ]](https://gitee.com/orangeform/orange-admin)： 橙单中台化低代码生成器。可完整支持多应用、多租户、多渠道、工作流、框架技术栈自由组合等。
-- [[ 灯灯 ]](https://gitee.com/dromara/lamp-cloud)： 专注于多租户解决方案的中后台快速开发平台。支持独立数据库、共享数据架构 和 非租户模式 ✨
-- [[ 拾壹博客 ]](https://gitee.com/quequnlong/shiyi-blog)：一款 vue + springboot 前后端分离的博客系统。
+```http
+POST /auth/logout
+satoken: <token>
+```
 
+---
 
+#### 踢人下线
 
-还有更多优秀开源案例无法逐一展示，请参考：[Awesome-Sa-Token](https://gitee.com/sa-token/awesome-sa-token)
+```http
+POST /auth/kickout
+Content-Type: application/json
 
+{ "loginId": "10001" }
+```
 
-### 🔗 友情链接
-- [[ OkHttps ]](https://gitee.com/ejlchina-zhxu/okhttps)：轻量级 http 通信框架，API无比优雅，支持 WebSocket、Stomp 协议
-- [[ Forest ]](https://gitee.com/dromara/forest)：声明式与编程式双修，让天下没有难以发送的 HTTP 请求
-- [[ Bean Searcher ]](https://github.com/ejlchina/bean-searcher)：专注高级查询的只读 ORM，使一行代码实现复杂列表检索！
-- [[ Jpom ]](https://gitee.com/dromara/Jpom)：简而轻的低侵入式在线构建、自动部署、日常运维、项目监控软件。
-- [[ TLog ]](https://gitee.com/dromara/TLog)：一个轻量级的分布式日志标记追踪神器。
-- [[ hippo4j ]](https://gitee.com/agentart/hippo4j)：强大的动态线程池框架，附带监控报警功能。
-- [[ hertzbeat ]](https://gitee.com/dromara/hertzbeat)：易用友好的开源实时监控告警系统，无需Agent，高性能集群，强大自定义监控能力。
-- [[ Solon ]](https://gitee.com/noear/solon)：一个更现代感的应用开发框架：更快、更小、更自由。
-- [[ Chat2DB ]](https://github.com/chat2db/Chat2DB)：一个AI驱动的数据库管理和BI工具，支持Mysql、pg、Oracle、Redis等22种数据库的管理。
+---
 
+#### 查询 Token 信息
 
+```http
+GET /auth/token-info
+satoken: <token>
+```
 
-### 📦 代码托管
-- Gitee：[https://gitee.com/dromara/sa-token](https://gitee.com/dromara/sa-token)
-- GitHub：[https://github.com/dromara/sa-token](https://github.com/dromara/sa-token)
-- AtomGit：[https://atomgit.com/dromara/sa-token](https://atomgit.com/dromara/sa-token)
+---
 
+#### 判断是否登录
 
+```http
+GET /auth/is-login
+satoken: <token>
+```
 
-### 💬 交流群
-<!-- QQ交流群：685792424 [点击加入](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=Y05Ld4125W92YSwZ0gA8e3RhG9Q4Vsfx&authKey=IomXuIuhP9g8G7l%2ByfkrRsS7i%2Fna0lIBpkTXxx%2BQEaz0NNEyJq00kgeiC4dUyNLS&noverify=0&group_code=685792424)-->
+---
 
-QQ交流群：1081649142 [点击加入](https://qm.qq.com/q/SCAaZ6Ros2) 
+#### 权限管理
 
-微信交流群：
+```http
+# 添加权限
+POST /auth/permission/add
+{ "loginId": "10001", "permission": "user:add" }
 
-<!-- <img src="https://oss.dev33.cn/sa-token/qr/wx-qr-m-400k.png" width="230px" title="微信群" /> -->
+# 移除权限
+POST /auth/permission/remove
+{ "loginId": "10001", "permission": "user:add" }
 
-<img src="https://sa-token.cc/big-file/contact/i-wx-qr2.jpg" width="230px" title="微信群" />
+# 获取权限列表
+GET /auth/permission/10001
 
-PS：扫码添加微信 (备注：sa-token)，邀您加入群聊。
+# 校验权限
+POST /auth/permission/check
+{ "loginId": "10001", "permission": "user:add" }
+```
 
-<br>
+---
 
-<img class="s-w" src="https://sa-token.cc/big-file/contact/show/wx-group-show3--liubai.png" style="max-width: 50%;" alt="微信群" />
+#### 角色管理
 
+```http
+# 添加角色
+POST /auth/role/add
+{ "loginId": "10001", "role": "admin" }
 
-加入群聊的好处：
-- 第一时间收到框架更新通知。
-- 第一时间收到框架 bug 通知。
-- 第一时间收到新增开源案例通知。
-- 和众多大佬一起互相 (huá shuǐ) 交流 (mō yú) 🖐️🐟️。
+# 移除角色
+POST /auth/role/remove
+{ "loginId": "10001", "role": "admin" }
 
+# 获取角色列表
+GET /auth/role/10001
+
+# 校验角色
+POST /auth/role/check
+{ "loginId": "10001", "role": "admin" }
+```
+
+---
+
+#### 账号封禁
+
+```http
+# 封禁（banCategory 为封禁分类，disableTime 为秒数，-1 = 永久）
+POST /auth/disable
+{
+  "loginId": "10001",
+  "banCategory": "comment",
+  "banLevel": 1,
+  "disableTime": 86400,
+  "reason": "违规操作"
+}
+
+# 解封
+POST /auth/untie-disable
+{ "loginId": "10001", "banCategory": "comment" }
+
+# 查询封禁信息
+GET /auth/disable-info/10001?banCategory=comment
+```
+
+---
+
+#### 临时 Token
+
+```http
+# 创建（timeout 单位：秒）
+POST /auth/temp-token/create
+{ "service": "download", "value": "/files/report.pdf", "timeout": 300 }
+
+# 解析
+GET /auth/temp-token/parse?token=xxx&service=download
+```
+
+---
+
+### SSO 接口 `/sso`
+
+AeroPre_Auth_center 可同时充当 **SSO Server** 和 **SSO Client**：
+
+- `SSO_SERVER_URL` 为空 → 当前实例是 **SSO Server**
+- `SSO_SERVER_URL` 有值 → 当前实例是 **SSO Client**
+
+#### SSO 登录完整流程
+
+```
+用户访问 Client 受保护页面
+  ↓
+GET /sso/client/login?redirect=https://client.com/dashboard
+  ↓
+302 → SSO Server: /sso/auth?redirect=https://client.com/sso/client/callback&client=client1
+  ↓
+用户在 Server 登录页输入账号
+  ↓
+POST /sso/do-login → 生成 ticket
+  ↓
+302 → Client: https://client.com/sso/client/callback?ticket=xxxx
+  ↓
+Client 调用 Server /sso/checkTicket 校验 ticket
+  ↓
+校验通过，建立本地 session，302 → /dashboard
+```
+
+---
+
+#### SSO Server 接口
+
+| 接口 | 说明 |
+|------|------|
+| `GET /sso/auth?redirect=<url>&client=<id>` | 认证入口，未登录跳登录页 |
+| `GET /sso/login-page?redirect=<url>` | 内置登录页（可替换为自定义前端）|
+| `POST /sso/do-login` | 执行登录验证 ⚠️ 需实现密码校验 |
+| `GET /sso/checkTicket?ticket=xxx` | 校验 ticket（供 Client 调用）|
+| `GET /sso/logout?redirect=<url>` | 单点注销 |
+| `POST /sso/client/register` | 注册 SSO Client（需登录）|
+
+---
+
+#### SSO Client 接口
+
+| 接口 | 说明 |
+|------|------|
+| `GET /sso/client/login?redirect=<url>` | 跳转到 SSO Server 登录 |
+| `GET /sso/client/callback?ticket=xxx` | 登录成功回调，建立本地会话 |
+| `GET /sso/client/logout?redirect=<url>` | 跳转到 SSO Server 单点注销 |
+
+---
+
+## 中间件使用
+
+```typescript
+import { requireLogin, requirePermission, requireRole } from './middleware/auth.js';
+import { Hono } from 'hono';
+
+const api = new Hono();
+
+// 要求登录
+api.get('/profile', requireLogin(), async (c) => {
+  const loginId = c.get('loginId');
+  return c.json({ loginId });
+});
+
+// 要求权限
+api.post('/article', requirePermission('article:publish'), async (c) => {
+  // ...
+});
+
+// 要求角色
+api.get('/admin', requireRole('admin'), async (c) => {
+  // ...
+});
+```
+
+---
+
+## 多账号体系
+
+通过 `loginType` 区分不同账号表（如普通用户与管理员）：
+
+```http
+# 管理员登录（loginType = admin）
+POST /auth/login
+{ "loginId": "admin001", "loginType": "admin" }
+
+# 校验管理员权限
+POST /auth/permission/check
+{ "loginId": "admin001", "permission": "sys:manage", "loginType": "admin" }
+```
+
+---
+
+## 定时清理（Cron Trigger）
+
+在 `wrangler.toml` 中添加：
+
+```toml
+[triggers]
+crons = ["0 2 * * *"]
+```
+
+Worker 将在每天 UTC 02:00 自动清理过期 token 会话和 SSO ticket。
+
+---
+
+## 项目结构
+
+```
+.
+├── src/
+│   ├── index.ts              # Worker 入口 + Cron Trigger
+│   ├── types.ts              # 类型定义 & 异常类
+│   ├── config.ts             # 配置读取 & 工具函数
+│   ├── core/
+│   │   ├── StpLogic.ts       # 核心认证逻辑
+│   │   ├── SaSession.ts      # 账号 Session
+│   │   └── SaTempToken.ts    # 临时 Token
+│   ├── dao/
+│   │   └── D1Dao.ts          # D1 数据访问层
+│   ├── sso/
+│   │   ├── SaSsoServer.ts    # SSO 服务端
+│   │   └── SaSsoClient.ts    # SSO 客户端
+│   ├── routes/
+│   │   ├── auth.ts           # 认证 REST API
+│   │   └── sso.ts            # SSO REST API
+│   └── middleware/
+│       └── auth.ts           # Hono 鉴权中间件
+├── schema.sql                # D1 建表脚本
+├── wrangler.toml             # Cloudflare 配置
+├── package.json
+└── tsconfig.json
+```
+
+---
+
+## 生产部署注意事项
+
+1. **`/sso/do-login` 密码验证**：默认实现为演示骨架，生产必须替换为真实的数据库查询 + 密码哈希（bcrypt / argon2）验证。
+
+2. **SSO Secret Key**：通过 `wrangler secret put SSO_SECRET_KEY` 设置，不要在 `wrangler.toml` 中明文填写。
+
+3. **CORS**：`src/index.ts` 中默认为 `origin: '*'`，生产按需改为具体域名：
+   ```typescript
+   cors({ origin: ['https://app.example.com'] })
+   ```
+
+4. **`/sso/client/register`**：已加 `requireLogin()` 保护，建议进一步限制为 `requireRole('admin')`。
+
+5. **速率限制**：生产建议在登录接口前添加 Cloudflare Rate Limiting 规则，防止暴力破解。
+
+---
+
+## License
+
+[Apache 2.0](LICENSE)

@@ -1,20 +1,12 @@
-target/
-
+# Node.js / TypeScript
 node_modules/
-bin/
-.settings/
-unpackage/
-.classpath
-.project
-*.iml
+dist/
+.wrangler/
 
-.factorypath
-/.factorypath
-
-.idea/
+# Editor
 .vscode/
+.idea/
 
-sa-token-three-plugin/
-sa-token-doc/big-file/
-
-.flattened-pom.xml
+# OS
+.DS_Store
+Thumbs.db

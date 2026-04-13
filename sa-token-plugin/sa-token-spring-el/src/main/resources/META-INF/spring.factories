@@ -1,2 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-cn.dev33.satoken.aop.SaCheckELAspect

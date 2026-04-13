@@ -1,0 +1,43 @@
+name = "aeropre-auth-center"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# ── D1 数据库绑定 ──────────────────────────────────────────
+[[d1_databases]]
+binding = "DB"
+database_name = "aeropre-auth-center-db"
+database_id = "your-database-id-here"   # 执行 `wrangler d1 create aeropre-auth-center-db` 后填入
+
+# ── KV 命名空间绑定（Token 快速查找缓存） ──────────────────
+[[kv_namespaces]]
+binding = "TOKEN_KV"
+id = "your-kv-namespace-id-here"        # 执行 `wrangler kv namespace create TOKEN_KV` 后填入
+
+# ── 环境变量 ──────────────────────────────────────────────
+[vars]
+# token 名称（Cookie / Header 中的 key）
+SA_TOKEN_NAME = "satoken"
+# token 默认有效期（秒），-1 = 永不过期
+SA_TOKEN_TIMEOUT = "2592000"
+# 活跃有效期（秒），-1 = 不启用，每次请求自动续期
+SA_TOKEN_ACTIVE_TIMEOUT = "1800"
+# 是否允许同端并发登录（false 时互斥）
+SA_TOKEN_IS_CONCURRENT = "true"
+# 是否共享同一个 token（并发登录时）
+SA_TOKEN_IS_SHARE = "true"
+# 最大同端登录数，-1 = 不限制
+SA_TOKEN_MAX_LOGIN_COUNT = "12"
+# SSO 服务端地址（作为 SSO Client 时填写）
+SSO_SERVER_URL = ""
+# SSO 参数加签密钥（Server/Client 保持一致）
+# ⚠️  生产环境请改用 Wrangler Secret，而不是在此明文配置：
+#   wrangler secret put SSO_SECRET_KEY
+SSO_SECRET_KEY = "change-me-use-wrangler-secret-in-production"
+# ticket 有效期（秒）
+SSO_TICKET_TIMEOUT = "300"
+
+# ── 生产环境示例 ──────────────────────────────────────────
+# [env.production]
+# [env.production.vars]
+# SA_TOKEN_TIMEOUT = "604800"
