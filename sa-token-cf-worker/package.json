@@ -1,0 +1,21 @@
+{
+  "name": "sa-token-cf-worker",
+  "version": "1.0.0",
+  "description": "Sa-Token authentication framework ported to Cloudflare Workers + D1",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate": "wrangler d1 execute sa-token-db --file=./schema.sql",
+    "db:migrate:remote": "wrangler d1 execute sa-token-db --remote --file=./schema.sql",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "^4.12.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250409.0",
+    "typescript": "^5.7.3",
+    "wrangler": "^4.12.0"
+  }
+}
