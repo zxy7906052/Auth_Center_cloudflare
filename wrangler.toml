@@ -7,12 +7,12 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "aeropre-auth-center-db"
-database_id = "your-database-id-here"   # 执行 `wrangler d1 create aeropre-auth-center-db` 后填入
+database_id = "7365b19d-f826-4423-8021-7482cd46acbf"   # 执行 `wrangler d1 create aeropre-auth-center-db` 后填入
 
 # ── KV 命名空间绑定（Token 快速查找缓存） ──────────────────
 [[kv_namespaces]]
 binding = "TOKEN_KV"
-id = "your-kv-namespace-id-here"        # 执行 `wrangler kv namespace create TOKEN_KV` 后填入
+id = "f5d35c592a334fe9a0c518d25d500ec1"        # 执行 `wrangler kv namespace create TOKEN_KV` 后填入
 
 # ── 环境变量 ──────────────────────────────────────────────
 [vars]
